@@ -1,0 +1,548 @@
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  i Companies /CA, NY, WA,TX, FL/
+   3  j Warehouses/Warehouse1,Warehouse2,Warehouse3/
+   4  k Customers /Customer1,Customer2,Customer3,Customer4/;
+   5   
+   6  parameters C(i) Capacity of each company;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  C = 1:C
+  11  ;
+  12  parameters D(k) Demand of each customer;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  D = 1:D
+  17  ;
+  18  parameters PC(i,j) Cost of Production and inventory;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  PC = 1:PC
+  23  ;
+  24  parameters SC(j,k) Cost of Production and inventory;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  SC = 1:SC
+  29  ;
+  30  parameters yC(i) fixed cost of each company;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  yC = 1:yC
+  35  ;
+  36  parameters wC(j) fixed cost of each warehouse;
+GDXIN   C:\Users\sabed\Documents\gamsdir\projdir\Phase2_Data_OR2.gdx
+--- LOAD  wC = 1:wC
+  41  ;
+  42   
+  43  Variables
+  44  z Goal
+  45  y(i) company initialize
+  46  w(j) warehouse initialize
+  47  P(i,j) tonnage of production
+  48  S(j,k) tonnage of Supply
+  49  ;
+  50  positive variable
+  51  P
+  52  S;
+  53  binary variable
+  54  y
+  55  w;
+  56   
+  57  equations
+  58  cost objective func
+  59  capacity_limit(i)
+  60  demand_supplies(k)
+  61  inventory(j)
+  62  warehouse_initialize(j);
+  63  cost .. z=e=100*sum((i,j),P(i,j)*PC(i,j))+sum((j,k),S(j,k)*SC(j,k))+1000*s
+      um(i,y(i)*yC(i))+1000*sum(j,w(j)*wC(j));
+  64  capacity_limit(i) .. sum(j,P(i,j))=l=C(i)*y(i);
+  65  demand_supplies(k) .. sum(j,S(j,k))=e=D(k);
+  66  inventory(j) .. sum(k,S(j,k))=l=sum(i,P(i,j));
+  67  warehouse_initialize(j) .. sum(i,P(i,j))=l=w(j)*900;
+  68   
+  69  model main/all/;
+  70  solve main using mip minimizing z;
+  71  display Z.l,P.l,S.l,y.l,w.l,P.m,S.m,z.m;
+  72   
+  73  execute_unload"Phase2_Data_OR2.gdx" z, P, S;
+  74  execute'gdxxrw.exe  Phase2_Data_OR2.gdx o=Phase2_Data_OR2.xlsx var=z Rng=z
+      !b2'
+  75  execute'gdxxrw.exe  Phase2_Data_OR2.gdx o=Phase2_Data_OR2.xlsx var=P Rng=p
+      !b2'
+  76  execute'gdxxrw.exe  Phase2_Data_OR2.gdx o=Phase2_Data_OR2.xlsx var=S Rng=s
+      !b2'
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  D:\OR2\Project_2\phase2_b.gms
+     2        7 CALL           1       7  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =C Rng=Capacity!C5:G6 cdim=1
+     3        8 GDXIN          1       8  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+     4       13 CALL           1      13  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =D Rng=Demand!C7:F8 cdim=1
+     5       14 GDXIN          1      14  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+     6       19 CALL           1      19  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =PC Rng=Cost_W!B4:E9 rdim=1 cdim=1
+     7       20 GDXIN          1      20  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+     8       25 CALL           1      25  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =SC Rng=Cost_C!B5:F8 rdim=1 cdim=1
+     9       26 GDXIN          1      26  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+    10       31 CALL           1      31  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =yC Rng=Cost_F!B5:C9 rdim=1
+    11       32 GDXIN          1      32  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+    12       37 CALL           1      37  gdxxrw.exe C:\Users\sabed\Documents\ga
+                                          msdir\projdir\Phase2_Data_OR2.xlsx par
+                                          =wC Rng=Cost_F!B10:C12 rdim=1
+    13       38 GDXIN          1      38  C:\Users\sabed\Documents\gamsdir\projd
+                                          ir\Phase2_Data_OR2.gdx
+
+
+COMPILATION TIME     =        5.016 SECONDS      3 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE main Using MIP From line 70
+
+
+---- cost  =E=  objective func
+
+cost..  z - 35000*y(CA) - 45000*y(NY) - 40000*y(WA) - 42000*y(TX) - 40000*y(FL)
+     
+      - 30000*w(Warehouse1) - 40000*w(Warehouse2) - 30000*w(Warehouse3)
+     
+      - 800*P(CA,Warehouse1) - 1000*P(CA,Warehouse2) - 1200*P(CA,Warehouse3)
+     
+      - 700*P(NY,Warehouse1) - 500*P(NY,Warehouse2) - 700*P(NY,Warehouse3)
+     
+      - 800*P(WA,Warehouse1) - 600*P(WA,Warehouse2) - 700*P(WA,Warehouse3)
+     
+      - 500*P(TX,Warehouse1) - 600*P(TX,Warehouse2) - 700*P(TX,Warehouse3)
+     
+      - 700*P(FL,Warehouse1) - 600*P(FL,Warehouse2) - 500*P(FL,Warehouse3)
+     
+      - 40*S(Warehouse1,Customer1) - 80*S(Warehouse1,Customer2)
+     
+      - 90*S(Warehouse1,Customer3) - 50*S(Warehouse1,Customer4)
+     
+      - 70*S(Warehouse2,Customer1) - 70*S(Warehouse2,Customer2)
+     
+      - 60*S(Warehouse2,Customer3) - 80*S(Warehouse2,Customer4)
+     
+      - 80*S(Warehouse3,Customer1) - 30*S(Warehouse3,Customer2)
+     
+      - 50*S(Warehouse3,Customer3) - 60*S(Warehouse3,Customer4) =E= 0 ;
+     
+      (LHS = 0)
+     
+
+---- capacity_limit  =L=  
+
+capacity_limit(CA)..  - 300*y(CA) + P(CA,Warehouse1) + P(CA,Warehouse2)
+     
+      + P(CA,Warehouse3) =L= 0 ; (LHS = 0)
+     
+capacity_limit(NY)..  - 200*y(NY) + P(NY,Warehouse1) + P(NY,Warehouse2)
+     
+      + P(NY,Warehouse3) =L= 0 ; (LHS = 0)
+     
+capacity_limit(WA)..  - 300*y(WA) + P(WA,Warehouse1) + P(WA,Warehouse2)
+     
+      + P(WA,Warehouse3) =L= 0 ; (LHS = 0)
+     
+REMAINING 2 ENTRIES SKIPPED
+
+
+---- demand_supplies  =E=  
+
+demand_supplies(Customer1)..  S(Warehouse1,Customer1) + S(Warehouse2,Customer1)
+     
+      + S(Warehouse3,Customer1) =E= 200 ; (LHS = 0, INFES = 200 ****)
+     
+demand_supplies(Customer2)..  S(Warehouse1,Customer2) + S(Warehouse2,Customer2)
+     
+      + S(Warehouse3,Customer2) =E= 300 ; (LHS = 0, INFES = 300 ****)
+     
+demand_supplies(Customer3)..  S(Warehouse1,Customer3) + S(Warehouse2,Customer3)
+     
+      + S(Warehouse3,Customer3) =E= 150 ; (LHS = 0, INFES = 150 ****)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- inventory  =L=  
+
+inventory(Warehouse1)..  - P(CA,Warehouse1) - P(NY,Warehouse1)
+     
+      - P(WA,Warehouse1) - P(TX,Warehouse1) - P(FL,Warehouse1)
+     
+      + S(Warehouse1,Customer1) + S(Warehouse1,Customer2)
+     
+      + S(Warehouse1,Customer3) + S(Warehouse1,Customer4) =L= 0 ; (LHS = 0)
+     
+inventory(Warehouse2)..  - P(CA,Warehouse2) - P(NY,Warehouse2)
+     
+      - P(WA,Warehouse2) - P(TX,Warehouse2) - P(FL,Warehouse2)
+     
+      + S(Warehouse2,Customer1) + S(Warehouse2,Customer2)
+     
+      + S(Warehouse2,Customer3) + S(Warehouse2,Customer4) =L= 0 ; (LHS = 0)
+     
+inventory(Warehouse3)..  - P(CA,Warehouse3) - P(NY,Warehouse3)
+     
+      - P(WA,Warehouse3) - P(TX,Warehouse3) - P(FL,Warehouse3)
+     
+      + S(Warehouse3,Customer1) + S(Warehouse3,Customer2)
+     
+      + S(Warehouse3,Customer3) + S(Warehouse3,Customer4) =L= 0 ; (LHS = 0)
+     
+
+---- warehouse_initialize  =L=  
+
+warehouse_initialize(Warehouse1)..  - 900*w(Warehouse1) + P(CA,Warehouse1)
+     
+      + P(NY,Warehouse1) + P(WA,Warehouse1) + P(TX,Warehouse1)
+     
+      + P(FL,Warehouse1) =L= 0 ; (LHS = 0)
+     
+warehouse_initialize(Warehouse2)..  - 900*w(Warehouse2) + P(CA,Warehouse2)
+     
+      + P(NY,Warehouse2) + P(WA,Warehouse2) + P(TX,Warehouse2)
+     
+      + P(FL,Warehouse2) =L= 0 ; (LHS = 0)
+     
+warehouse_initialize(Warehouse3)..  - 900*w(Warehouse3) + P(CA,Warehouse3)
+     
+      + P(NY,Warehouse3) + P(WA,Warehouse3) + P(TX,Warehouse3)
+     
+      + P(FL,Warehouse3) =L= 0 ; (LHS = 0)
+     
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE main Using MIP From line 70
+
+
+---- z  Goal
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost
+
+
+---- y  company initialize
+
+y(CA)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -35000       cost
+     -300       capacity_limit(CA)
+
+y(NY)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -45000       cost
+     -200       capacity_limit(NY)
+
+y(WA)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -40000       cost
+     -300       capacity_limit(WA)
+
+REMAINING 2 ENTRIES SKIPPED
+
+---- w  warehouse initialize
+
+w(Warehouse1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -30000       cost
+     -900       warehouse_initialize(Warehouse1)
+
+w(Warehouse2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -40000       cost
+     -900       warehouse_initialize(Warehouse2)
+
+w(Warehouse3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+   -30000       cost
+     -900       warehouse_initialize(Warehouse3)
+
+
+---- P  tonnage of production
+
+P(CA,Warehouse1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     -800       cost
+        1       capacity_limit(CA)
+       -1       inventory(Warehouse1)
+        1       warehouse_initialize(Warehouse1)
+
+P(CA,Warehouse2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    -1000       cost
+        1       capacity_limit(CA)
+       -1       inventory(Warehouse2)
+        1       warehouse_initialize(Warehouse2)
+
+P(CA,Warehouse3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    -1200       cost
+        1       capacity_limit(CA)
+       -1       inventory(Warehouse3)
+        1       warehouse_initialize(Warehouse3)
+
+REMAINING 12 ENTRIES SKIPPED
+
+---- S  tonnage of Supply
+
+S(Warehouse1,Customer1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -40       cost
+        1       demand_supplies(Customer1)
+        1       inventory(Warehouse1)
+
+S(Warehouse1,Customer2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -80       cost
+        1       demand_supplies(Customer2)
+        1       inventory(Warehouse1)
+
+S(Warehouse1,Customer3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -90       cost
+        1       demand_supplies(Customer3)
+        1       inventory(Warehouse1)
+
+REMAINING 9 ENTRIES SKIPPED
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE main Using MIP From line 70
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           5     SINGLE EQUATIONS           16
+BLOCKS OF VARIABLES           5     SINGLE VARIABLES           36
+NON ZERO ELEMENTS           113     DISCRETE VARIABLES          8
+
+
+GENERATION TIME      =        0.078 SECONDS      4 MB  37.1.0 r07954d5 WEX-WEI
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE main Using MIP From line 70
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   main                OBJECTIVE  z
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  70
+
+**** SOLVER STATUS     1 Normal Completion
+**** MODEL STATUS      1 Optimal
+**** OBJECTIVE VALUE           725000.0000
+
+ RESOURCE USAGE, LIMIT          1.453 10000000000.000
+ ITERATION COUNT, LIMIT        31    2147483647
+--- *** This solver runs with a demo license. No commercial use.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.09sec (det. 0.39 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.04 ticks)
+
+
+Proven optimal solution
+MIP Solution:       725000.000000    (31 iterations, 0 nodes)
+Final Solve:        725000.000000    (4 iterations)
+
+Best possible:      725000.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- EQU cost            .         .         .        1.000      
+
+  cost  objective func
+
+---- EQU capacity_limit  
+
+      LOWER     LEVEL     UPPER    MARGINAL
+
+CA     -INF       .         .         .         
+NY     -INF       .         .     -100.000      
+WA     -INF       .         .         .         
+TX     -INF       .         .     -130.000      
+FL     -INF       .         .     -120.000      
+
+---- EQU demand_supplies  
+
+             LOWER     LEVEL     UPPER    MARGINAL
+
+Customer1   200.000   200.000   200.000   670.000      
+Customer2   300.000   300.000   300.000   650.000      
+Customer3   150.000   150.000   150.000   660.000      
+Customer4   250.000   250.000   250.000   680.000      
+
+---- EQU inventory  
+
+              LOWER     LEVEL     UPPER    MARGINAL
+
+Warehouse1     -INF       .         .     -630.000      
+Warehouse2     -INF       .         .     -600.000      
+Warehouse3     -INF       .         .     -620.000      
+
+---- EQU warehouse_initialize  
+
+              LOWER     LEVEL     UPPER    MARGINAL
+
+Warehouse1     -INF       .         .         .         
+Warehouse2     -INF   -400.000      .         .         
+Warehouse3     -INF   -500.000      .         .         
+
+                       LOWER     LEVEL     UPPER    MARGINAL
+
+---- VAR z              -INF  7.2500E+5     +INF       .         
+
+  z  Goal
+
+---- VAR y  company initialize
+
+      LOWER     LEVEL     UPPER    MARGINAL
+
+CA      .         .        1.000 35000.000      
+NY      .        1.000     1.000 25000.000      
+WA      .        1.000     1.000 40000.000      
+TX      .         .        1.000 16000.000      
+FL      .        1.000     1.000 -8000.000      
+
+---- VAR w  warehouse initialize
+
+              LOWER     LEVEL     UPPER    MARGINAL
+
+Warehouse1      .         .        1.000 30000.000      
+Warehouse2      .        1.000     1.000 40000.000      
+Warehouse3      .        1.000     1.000 30000.000      
+
+---- VAR P  tonnage of production
+
+                 LOWER     LEVEL     UPPER    MARGINAL
+
+CA.Warehouse1      .         .        +INF    170.000      
+CA.Warehouse2      .         .        +INF    400.000      
+CA.Warehouse3      .         .        +INF    580.000      
+NY.Warehouse1      .         .        +INF    170.000      
+NY.Warehouse2      .      200.000     +INF       .         
+NY.Warehouse3      .         .        +INF    180.000      
+WA.Warehouse1      .         .        +INF    170.000      
+WA.Warehouse2      .      300.000     +INF       .         
+WA.Warehouse3      .         .        +INF     80.000      
+TX.Warehouse1      .         .        +INF       .         
+TX.Warehouse2      .         .        +INF    130.000      
+TX.Warehouse3      .         .        +INF    210.000      
+FL.Warehouse1      .         .        +INF    190.000      
+FL.Warehouse2      .         .        +INF    120.000      
+FL.Warehouse3      .      400.000     +INF       .         
+
+---- VAR S  tonnage of Supply
+
+                        LOWER     LEVEL     UPPER    MARGINAL
+
+Warehouse1.Customer1      .         .        +INF       .         
+Warehouse1.Customer2      .         .        +INF     60.000      
+Warehouse1.Customer3      .         .        +INF     60.000      
+Warehouse1.Customer4      .         .        +INF       EPS       
+Warehouse2.Customer1      .      200.000     +INF       .         
+Warehouse2.Customer2      .         .        +INF     20.000      
+Warehouse2.Customer3      .      150.000     +INF       .         
+Warehouse2.Customer4      .      150.000     +INF       .         
+Warehouse3.Customer1      .         .        +INF     30.000      
+Warehouse3.Customer2      .      300.000     +INF       .         
+Warehouse3.Customer3      .         .        +INF     10.000      
+Warehouse3.Customer4      .      100.000     +INF       .         
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             2  PROJECTED
+GAMS 37.1.0  r07954d5 Released Nov 11, 2021 WEX-WEI x86 64bit/MS Windows - 01/08/22 17:55:27 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     71 VARIABLE z.L                   =   725000.000  Goal
+
+----     71 VARIABLE P.L  tonnage of production
+
+    Warehouse2  Warehouse3
+
+NY     200.000
+WA     300.000
+FL                 400.000
+
+
+----     71 VARIABLE S.L  tonnage of Supply
+
+             Customer1   Customer2   Customer3   Customer4
+
+Warehouse2     200.000                 150.000     150.000
+Warehouse3                 300.000                 100.000
+
+
+----     71 VARIABLE y.L  company initialize
+
+NY 1.000,    WA 1.000,    FL 1.000
+
+
+----     71 VARIABLE w.L  warehouse initialize
+
+Warehouse2 1.000,    Warehouse3 1.000
+
+
+----     71 VARIABLE P.M  tonnage of production
+
+    Warehouse1  Warehouse2  Warehouse3
+
+CA     170.000     400.000     580.000
+NY     170.000                 180.000
+WA     170.000                  80.000
+TX                 130.000     210.000
+FL     190.000     120.000
+
+
+----     71 VARIABLE S.M  tonnage of Supply
+
+             Customer1   Customer2   Customer3   Customer4
+
+Warehouse1                  60.000      60.000         EPS
+Warehouse2                  20.000
+Warehouse3      30.000                  10.000
+
+
+----     71 VARIABLE z.M                   =        0.000  Goal
+
+
+EXECUTION TIME       =        4.281 SECONDS      4 MB  37.1.0 r07954d5 WEX-WEI
