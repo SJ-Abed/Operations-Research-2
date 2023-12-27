@@ -1,0 +1,14 @@
+/*********************************************
+ * OPL 12.9.0.0 Data
+ * Author: sabed
+ * Creation Date: Nov 19, 2021 at 4:31:53 PM
+ *********************************************/
+
+SheetConnection connex ("data.xlsx");
+
+Cap from SheetRead (connex,"data!B3:B5");
+P from SheetRead (connex,"data!E3:G8");
+C from SheetRead (connex,"data!E11:G16");
+N from SheetRead (connex,"data!B10:B15");
+
+someSet to SheetWrite (connex, "Result!B2:E55");
